@@ -1,2 +1,3 @@
-# mc-reverse-proxy
-A simple reverse proxy (with questionable API design :)) for Minecraft using Java 17 and Netty 4.x.
+# Módosított fyremc proxy 
+## Kotlin scriptek a módosított proxyhoz a discord szeron: https://discord.gg/qAn2TXtYFv
+Eredeti: (https://github.com/marvintheskid/mc-reverse-proxy)
