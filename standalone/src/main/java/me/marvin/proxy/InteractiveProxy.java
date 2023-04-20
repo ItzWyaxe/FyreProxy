@@ -136,8 +136,8 @@ public class InteractiveProxy extends SimpleTerminalConsole {
         }, "fy");
 
         commandTree.register(args -> {
-            logger.info("For more help: https://discord.gg/qAn2TXtYFv");
             logger.info("YT tutorial: https://www.youtube.com/watch?v=TrDlr-hEDmA");
+            logger.info("For more help: https://discord.gg/qAn2TXtYFv");
             Desktop desktop = Desktop.getDesktop();
             try {
                 URI discord = new URI("https://discord.gg/qAn2TXtYFv");
@@ -147,7 +147,7 @@ public class InteractiveProxy extends SimpleTerminalConsole {
                 return false;
             }
             return true;
-        }, "discord");
+        }, "tutorial");
 
         commandTree.register(args -> {
             if (args.length != 1) {
@@ -193,7 +193,7 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             logger.info("login [accessToken | uuid | username] --> Set accessToken, uuid, username to [...], generate new SPI, ServerId");
             logger.info("spi --> Generate new SelectedProfileId, ServerId");
             logger.info("credentials --> Current credentials");
-            logger.info("discord --> For more help");
+            logger.info("tutorial --> For more help");
             logger.info("----------------");
 
             return true;
