@@ -1,7 +1,7 @@
 Változások az eredetihez képest:
 -
 - Ha ki lettél bannolva, és új fiókkal akarsz felmenni, akkor nem fogja kiírni csatlakozásnál, hogy "regisztrálj a fyremc.hu weboldalon", és nem kell bezárnod a proxyt és újra megnyitni, hogy megint fel menj.
-#### Bekerült 5 új parancs:
+### Bekerült 5 új parancs:
 - spi (SelectedProfileId) -  Ez generál egy új random számot a profilodhoz, ez abban fog segíteni amit az előbb megemlítettem. 
 - login [accessToken | uuid | username] - Generál egy új random számot a profilodhoz, és talán kicsit könnyedén be tudsz lépni. Mindegy milyen sorrendben írod be a dolgokat, egy szűrővel megoldottam, hogy ne kelljen ezzel se foglalkoznod. Pl: login [accessToken, username, uuid], login [username, uuid, accessToken]
 - fy - Ez lefuttatja a fyre parancsot és beállítja ipnek a play.fyremc.hu-t
