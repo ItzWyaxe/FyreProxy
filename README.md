@@ -126,16 +126,16 @@ commandTree.register(args -> {
 ## Módosított parancsok
 \- credentials
 ```java
-        commandTree.register(args -> {
-            logger.info("Current credentials:");
-            logger.info("Session Service: {}", proxy.sessionService());
-            logger.info("Name: '{}'", proxy.name());
-            logger.info("UUID: '{}'", proxy.uuid());
-            logger.info("Token: '{}'", proxy.accessToken());
-            logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
-            logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
-            return true;
-        }, "credentials");
+commandTree.register(args -> {
+    logger.info("Current credentials:");
+    logger.info("Session Service: {}", proxy.sessionService());
+    logger.info("Name: '{}'", proxy.name());
+    logger.info("UUID: '{}'", proxy.uuid());
+    logger.info("Token: '{}'", proxy.accessToken());
+    logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
+    logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
+    return true;
+}, "credentials");
 ```
 
 
