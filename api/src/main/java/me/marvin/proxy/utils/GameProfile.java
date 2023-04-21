@@ -43,7 +43,7 @@ public interface GameProfile extends Mappable<GameProfile> {
         return new GameProfile() {
             @Override @Nullable public UUID uuid() {return uuid;}
             @Override @Nullable public String name() {return name;}
-            @Override public @Nullable String selectedProfileId() {return selectedProfileId;}
+            @Override @Nullable public String selectedProfileId() {return selectedProfileId;}
         };
         // @formatter:on
     }
