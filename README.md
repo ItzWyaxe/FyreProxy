@@ -15,9 +15,9 @@ Módosított fájl: [InteractiveProxy.java](https://github.com/ItzWyaxe/FyreProx
 
 \- Generál egy új SPI-t, így nem fogja új account csatlakozásnál kiírni hogy "regisztrálj a fyremc.hu weboldalon"
 ```java
-String serverPrev = proxy.selectedProfileId().substring(proxy.  selectedProfileId().length()-2);
+String serverPrev = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
 String RandSelectedPid = String.valueOf(Math.random()).substring(2) ;
-String serverId = proxy.selectedProfileId().substring(proxy.    selectedProfileId().length()-2);
+String serverId = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
 ```
 ## Új parancsok:
 
