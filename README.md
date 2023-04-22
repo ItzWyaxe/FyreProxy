@@ -8,7 +8,7 @@ Változások az eredetihez képest:
 - tutorial - Proxy használatának bemutása, illetve ha az se menne, akkor discordon segítséget lehet kérni
 - help - Kiírja a parancsokat
 
-####A módosított proxyban később kerülhetnek be olyan parancsok amik nem segítik a gyorsabb belépést!
+#### A módosított proxyban később kerülhetnek be olyan parancsok amik nem segítik a gyorsabb belépést!
 
 Módosított fájl: [InteractiveProxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/standalone/src/main/java/me/marvin/proxy/InteractiveProxy.java), [Proxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/Proxy.java), [GameProfile.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/GameProfile.java), [SessionService.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/SessionService.java)
 
