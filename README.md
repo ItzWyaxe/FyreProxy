@@ -126,8 +126,7 @@ commandTree.register(args -> {
 ```
 
 \-staffteam
-```
-java
+```java
 commandTree.register(args -> {
     if(args.length != 1) {
         logger.info("Usage: staffteam [admin]");
