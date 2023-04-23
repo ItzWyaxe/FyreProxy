@@ -148,6 +148,84 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             }
             return true;
         }, "tutorial");
+        
+                commandTree.register(args -> {
+            if(args.length != 1) {
+                logger.info("Usage: staffteam [admin]");
+                return false;
+            }
+
+            URL url = new URL("https://account.fyremc.hu/api/player/"+ args[0]);
+            URLConnection connection = url.openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line = null, data = "";
+            while ((line = reader.readLine()) != null) {
+                data += line;
+            }
+
+            JsonObject StaffTeamJson = (JsonObject) JsonParser.parseString(data);
+            if(StaffTeamJson.get("error").getAsBoolean()) {
+                logger.info("Admin not found");
+                return false;
+            }
+
+            JsonObject JsonData = StaffTeamJson.get("data").getAsJsonObject();
+            String name = JsonData.get("username").getAsString();
+            String rank = JsonData.get("rank").getAsString();
+
+            String AdminRanks = "Admin Admin+ Veteran Team Owner Moderator Builder Builder+ Jr.Moderator";
+
+            if(!AdminRanks.contains(rank)) {
+                logger.info("This user is not admin");
+                return false;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String Today = now.format(formatter);
+            WeekFields weekFields = WeekFields.of(Locale.getDefault());
+            String weekNumber = String.valueOf(now.get(weekFields.weekOfWeekBasedYear()));
+            String getYear = String.valueOf(now.getYear());
+
+            JsonArray onlineStatArray = JsonData.getAsJsonArray("onlinestat");
+            String wasOnlineStr = "";
+            boolean wasOnlineBool = false;
+            JsonObject onlineStat;
+            Iterator onlineStatK = onlineStatArray.iterator();
+            JsonObject onlineStatParse = (JsonObject) JsonParser.parseString(onlineStatK.next().toString());
+            int onlineTime;
+
+            if (onlineStatParse.toString().contains(Today)) {
+                onlineStat = onlineStatParse.get(Today).getAsJsonObject();
+                onlineTime = onlineStat.get("online").getAsInt();
+                wasOnlineStr = "True (" + onlineTime + " minute)";
+                wasOnlineBool = true;
+            } else {
+                wasOnlineStr = "False";
+            }
+
+            JsonObject WeekOnlineStatParse = (JsonObject) JsonParser.parseString(onlineStatK.next().toString());
+            JsonObject WeekOnlineStat;
+            int WeekOnlineTime = 0;
+            String WasActiveWeekStr = "";
+            if (WeekOnlineStatParse.toString().contains(getYear + "-" + weekNumber)) {
+                WeekOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekNumber).getAsJsonObject();
+                WeekOnlineTime = WeekOnlineStat.get("online").getAsInt() / 60;
+                if(WeekOnlineTime > 20) {
+                    WasActiveWeekStr += "True (20 < " + WeekOnlineTime + " hour)";
+                } else {
+                    WasActiveWeekStr += "False (20 > " + WeekOnlineTime + " hour)";
+                }
+            }
+
+            logger.info("StaffTeam");
+            logger.info("Username: {}", name);
+            logger.info("Rank: {}", rank);
+            logger.info("Was today online? {}", wasOnlineStr);
+            logger.info("Was active in this week? {}", WasActiveWeekStr);
+
+            return true;
+        }, "staffteam");
 
         commandTree.register(args -> {
             if (args.length != 1) {
