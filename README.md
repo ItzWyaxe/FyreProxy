@@ -133,15 +133,16 @@ commandTree.register(args -> {
         return false;
     }
     
-    URL url = new URL("https://account.fyremc.hu/api/player/"+ args[0]);
-    URLConnection connection = url.openConnection();
+    URL FyremcPlayerAPI = new URL("https://account.fyremc.hu/api/player/"+ args[0]);
+    URLConnection connection = FyremcPlayerAPI.openConnection();
     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-    String line = null, data = "";
+    String line;
+    StringBuilder data = new StringBuilder();
     while ((line = reader.readLine()) != null) {
-        data += line;
+        data.append(line);
     }
     
-    JsonObject StaffTeamJson = (JsonObject) JsonParser.parseString(data);
+    JsonObject StaffTeamJson = (JsonObject) JsonParser.parseString(data.toString());
     if (StaffTeamJson.get("error").getAsBoolean()) {
         logger.info("Admin not found");
         return false;
@@ -174,10 +175,10 @@ commandTree.register(args -> {
     JsonArray onlineStatArray = JsonData.getAsJsonArray("onlinestat");
     String wasOnlineStr;
     JsonObject onlineStat;
-    Iterator onlineStatK = onlineStatArray.iterator();
+    Iterator<JsonElement> onlineStatK = onlineStatArray.iterator();
     JsonObject onlineStatParse = (JsonObject) JsonParser.parseString(onlineStatK.next().toString());
     int onlineTime;
-    
+        
     if (onlineStatParse.toString().contains(Today)) {
         onlineStat = onlineStatParse.get(Today).getAsJsonObject();
         onlineTime = onlineStat.get("online").getAsInt();
@@ -185,13 +186,12 @@ commandTree.register(args -> {
     } else {
         wasOnlineStr = "False";
     }
-    
+     
     JsonObject WeekOnlineStatParse = (JsonObject) JsonParser.parseString(onlineStatK.next().toString());
-    
     JsonObject WeekOnlineStat;
     int WeekOnlineTime;
     String WasActiveWeekStr = "";
-    
+
     if (WeekOnlineStatParse.toString().contains(getYear + "-" + weekNumber)) {
         WeekOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekNumber).getAsJsonObject();
         WeekOnlineTime = WeekOnlineStat.get("online").getAsInt() / 60;
@@ -207,7 +207,7 @@ commandTree.register(args -> {
     JsonObject Last30DaysOnlineStat;
     String WasActiveLast30DaysStr = "";
     double Last30DaysOnlineTimeDouble = 0;
-    int Last30DaysOnlineTimeInt = 0;
+    int Last30DaysOnlineTimeInt;
     int WasNoActiveLast30Days = 0;
     int weekcm = now.get(weekFields.weekOfWeekBasedYear())-4;
     
