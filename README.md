@@ -1,11 +1,11 @@
 ## Kotlin scriptek a módosított proxyhoz a discord szeron: https://discord.gg/qAn2TXtYFv
 ## Tutorial a discord szeromon, vagy a youtube csatornámon!
 
-**Note** Változások az eredetihez képest:
+> **Note** Változások az eredetihez képest:
 -
 - Ha ki lettél bannolva, és új fiókkal akarsz felmenni, akkor nem fogja kiírni csatlakozásnál, hogy "regisztrálj a fyremc.hu weboldalon", és nem kell bezárnod a proxyt és újra megnyitni, hogy megint fel menj.
 
-### **Warning** A módosított proxyban később kerülhetnek be olyan parancsok, amik nem segítik a gyorsabb belépést!
+### > **Warning** A módosított proxyban később kerülhetnek be olyan parancsok, amik nem segítik a gyorsabb belépést!
 
 Módosított fájl: [InteractiveProxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/standalone/src/main/java/me/marvin/proxy/InteractiveProxy.java), [Proxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/Proxy.java), [GameProfile.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/GameProfile.java), [SessionService.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/SessionService.java)
 
@@ -145,9 +145,10 @@ commandTree.register(args -> {
 </details>
 
 <details>
-<summary>staffteam [admin]<summary>
+<summary>staffteam [admin]</summary>
 ## Használat + Leírás:
 \- Kiír néhány dolgot egy fmc adminról
+
 ```java
 commandTree.register(args -> {
     if (args.length != 1) {
