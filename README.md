@@ -1,32 +1,27 @@
 ## Kotlin scriptek a módosított proxyhoz a discord szeron: https://discord.gg/qAn2TXtYFv
 ## Tutorial a discord szeromon, vagy a youtube csatornámon!
 
-Változások az eredetihez képest:
+**Note** Változások az eredetihez képest:
 -
 - Ha ki lettél bannolva, és új fiókkal akarsz felmenni, akkor nem fogja kiírni csatlakozásnál, hogy "regisztrálj a fyremc.hu weboldalon", és nem kell bezárnod a proxyt és újra megnyitni, hogy megint fel menj.
-### Bekerült új parancsok:
-- spi (SelectedProfileId) -  Ez generál egy új random számot a SelectedProfileIdhez, ez abban fog segíteni amit az előbb megemlítettem. 
-- login [accessToken | uuid | username] - Generál egy új random számot a SelectedProfileIdhez, és talán kicsit könnyedén be tudsz lépni. Mindegy milyen sorrendben írod be a dolgokat, egy szűrővel megoldottam, hogy ne kelljen ezzel se foglalkoznod. Pl: login [accessToken, username, uuid], login [username, uuid, accessToken]
-- fy - Ez lefuttatja a fyre parancsot és beállítja ipnek a play.fyremc.hu-t
-- tutorial - Proxy használatának bemutása, illetve ha az se menne, akkor discordon segítséget lehet kérni
-- help - Kiírja a parancsokat
-- staffteam [admin] - Kiír néhány dolgot egy fmc adminról
 
-### A módosított proxyban később kerülhetnek be olyan parancsok amik nem segítik a gyorsabb belépést!
+### **Warning** A módosított proxyban később kerülhetnek be olyan parancsok, amik nem segítik a gyorsabb belépést!
 
 Módosított fájl: [InteractiveProxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/standalone/src/main/java/me/marvin/proxy/InteractiveProxy.java), [Proxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/Proxy.java), [GameProfile.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/GameProfile.java), [SessionService.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/SessionService.java)
-
-# Hozzáadott dolgok:
-## Random SelectedProfileId, ServerId
 
 \- Generál egy új SPI-t, így nem fogja új account csatlakozásnál kiírni hogy "regisztrálj a fyremc.hu weboldalon"
 ```java
 String RandSelectedPid = String.valueOf(Math.random()).substring(2) ;
 String serverId = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
 ```
-## Új parancsok:
 
-\- fy
+# Új paranacsok:
+
+<details>
+<summary>fy</summary>
+## Leírás:
+\- Ez lefuttatja a fyre parancsot és beállítja ipnek a play.fyremc.hu-t
+
 ```java
 commandTree.register(args -> {
     commandTree.execute("fyre");
@@ -37,8 +32,13 @@ commandTree.register(args -> {
     return true;
 }, "fy");
 ```
+</details>
 
-\- login [username | uuid | accessToken]
+<details>
+<summary>login [username | uuid | accessToken]</summary>
+## Használat + Leírás:
+\- login [accessToken | uuid | username] - Generál egy új random számot a SelectedProfileIdhez, és talán kicsit könnyedén be tudsz lépni. Mindegy milyen sorrendben írod be a dolgokat, egy szűrővel megoldottam, hogy ne kelljen ezzel se foglalkoznod. Pl: login [accessToken, username, uuid], login [username, uuid, accessToken]
+
 ```java
 commandTree.register(args -> {
     if (args.length != 3) {
@@ -76,8 +76,13 @@ commandTree.register(args -> {
     return true;
 }, "login");
 ```
-    
-\- tutorial
+</details>
+
+<details>
+<summary>tutorial</summary>
+## Leírás:
+\- Proxy használatának bemutása, illetve ha az se menne, akkor discordon segítséget lehet kérni
+
 ```java
 commandTree.register(args -> {
     logger.info("YT tutorial: https://www.youtube.com/watch?v=TrDlr-hEDmA");
@@ -93,8 +98,13 @@ commandTree.register(args -> {
     return true;
 }, "tutorial");
 ```
+</details>
 
-\- help
+<details>
+<summary>help</summary>
+## Leírás:
+\- Kiírja a parancsokat
+
 ```java
 commandTree.register(args -> {
     logger.info("----------------");
@@ -113,8 +123,13 @@ commandTree.register(args -> {
     return true;
 }, "help");
 ```
+</details>
 
-\- spi
+<details>
+<summary>spi (SelectedProfileId)</summary>
+## Leírás:
+\- Ez generál egy új random számot a SelectedProfileIdhez, ez abban fog segíteni amit az előbb megemlítettem. 
+
 ```java
 commandTree.register(args -> {
     String prev = proxy.selectedProfileId();
@@ -127,8 +142,12 @@ commandTree.register(args -> {
     return true;
 }, "spi");
 ```
+</details>
 
-\- staffteam
+<details>
+<summary>staffteam [admin]<summary>
+## Használat + Leírás:
+\- Kiír néhány dolgot egy fmc adminról
 ```java
 commandTree.register(args -> {
     if (args.length != 1) {
@@ -261,9 +280,12 @@ commandTree.register(args -> {
     return true;
 }, "staffteam");
 ```
+</details>
 
 ## Módosított parancsok
-\- credentials
+
+<details>
+<summary>credentials</summary>
 ```java
 commandTree.register(args -> {
     logger.info("Current credentials:");
@@ -276,5 +298,6 @@ commandTree.register(args -> {
     return true;
 }, "credentials");
 ```
+</details>
 
 Eredeti: (https://github.com/marvintheskid/mc-reverse-proxy)
