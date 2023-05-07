@@ -286,6 +286,7 @@ commandTree.register(args -> {
 
 <details>
 <summary>credentials</summary>
+
 ```java
 commandTree.register(args -> {
     logger.info("Current credentials:");
