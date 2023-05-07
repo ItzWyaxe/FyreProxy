@@ -1,8 +1,7 @@
 ## Kotlin scriptek a módosított proxyhoz a discord szeron: https://discord.gg/qAn2TXtYFv
 ## Tutorial a discord szeromon, vagy a youtube csatornámon!
 
-> **Note** Változások az eredetihez képest:
--
+> Változások az eredetihez képest:
 - Ha ki lettél bannolva, és új fiókkal akarsz felmenni, akkor nem fogja kiírni csatlakozásnál, hogy "regisztrálj a fyremc.hu weboldalon", és nem kell bezárnod a proxyt és újra megnyitni, hogy megint fel menj.
 
 > **Warning** A módosított proxyban később kerülhetnek be olyan parancsok, amik nem segítik a gyorsabb belépést!
