@@ -19,7 +19,7 @@ String serverId = proxy.selectedProfileId().substring(proxy.selectedProfileId().
 
 <details>
 <summary>fy</summary>
-## Leírás:
+Leírás:
 \- Ez lefuttatja a fyre parancsot és beállítja ipnek a play.fyremc.hu-t
 
 ```java
@@ -36,7 +36,7 @@ commandTree.register(args -> {
 
 <details>
 <summary>login [username | uuid | accessToken]</summary>
-## Használat + Leírás:
+Használat + Leírás:
 \- login [accessToken | uuid | username] - Generál egy új random számot a SelectedProfileIdhez, és talán kicsit könnyedén be tudsz lépni. Mindegy milyen sorrendben írod be a dolgokat, egy szűrővel megoldottam, hogy ne kelljen ezzel se foglalkoznod. Pl: login [accessToken, username, uuid], login [username, uuid, accessToken]
 
 ```java
@@ -80,7 +80,7 @@ commandTree.register(args -> {
 
 <details>
 <summary>tutorial</summary>
-## Leírás:
+Leírás:
 \- Proxy használatának bemutása, illetve ha az se menne, akkor discordon segítséget lehet kérni
 
 ```java
@@ -102,7 +102,7 @@ commandTree.register(args -> {
 
 <details>
 <summary>help</summary>
-## Leírás:
+Leírás:
 \- Kiírja a parancsokat
 
 ```java
@@ -127,7 +127,7 @@ commandTree.register(args -> {
 
 <details>
 <summary>spi (SelectedProfileId)</summary>
-## Leírás:
+Leírás:
 \- Ez generál egy új random számot a SelectedProfileIdhez, ez abban fog segíteni amit az előbb megemlítettem. 
 
 ```java
@@ -146,7 +146,7 @@ commandTree.register(args -> {
 
 <details>
 <summary>staffteam [admin]</summary>
-## Használat + Leírás:
+Használat + Leírás:
 \- Kiír néhány dolgot egy fmc adminról
 
 ```java
