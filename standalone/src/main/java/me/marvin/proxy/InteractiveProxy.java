@@ -170,7 +170,7 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             JsonObject JsonData = StaffTeamJson.get("data").getAsJsonObject();
             String name = JsonData.get("username").getAsString();
             String rank = JsonData.get("rank").getAsString();
-            String AdminRanks = "Admin Admin+ Veteran Team Owner Moderator Builder Builder+ Jr.Moderator";
+            String AdminRanks = "Admin Admin+ Veteran Team Owner Moderator Builder Builder+ Jr.Moderator Moderator+";
             if (!AdminRanks.contains(rank)) {
                 logger.info("This user is not admin");
                 return false;
@@ -185,29 +185,24 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String Today = now.format(formatter);
             WeekFields weekFields = WeekFields.of(Locale.getDefault());
-            String weekNumber = String.valueOf(now.get(weekFields.weekOfWeekBasedYear()));
-            String getYear = String.valueOf(now.getYear());
-
+            int weekNumber = now.get(weekFields.weekOfWeekBasedYear());
+            int getYear = now.getYear();
             JsonArray onlineStatArray = JsonData.getAsJsonArray("onlinestat");
             String wasOnlineStr;
-            JsonObject onlineStat;
             Iterator<JsonElement> onlineStatK = onlineStatArray.iterator();
             JsonObject onlineStatParse = (JsonObject) JsonParser.parseString(onlineStatK.next().toString());
-            int onlineTime;
             if (onlineStatParse.toString().contains(Today)) {
-                onlineStat = onlineStatParse.get(Today).getAsJsonObject();
-                onlineTime = onlineStat.get("online").getAsInt();
-                wasOnlineStr = "True (" + onlineTime + " minute)";
+                JsonObject onlineStat = onlineStatParse.get(Today).getAsJsonObject();
+                int onlineTime = onlineStat.get("online").getAsInt();
+                    wasOnlineStr = "True (" + onlineTime + " minute)";
             } else {
                 wasOnlineStr = "False";
             }
             JsonObject WeekOnlineStatParse = (JsonObject) JsonParser.parseString(onlineStatK.next().toString());
-            JsonObject WeekOnlineStat;
-            int WeekOnlineTime;
             String WasActiveWeekStr = "";
             if (WeekOnlineStatParse.toString().contains(getYear + "-" + weekNumber)) {
-                WeekOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekNumber).getAsJsonObject();
-                WeekOnlineTime = WeekOnlineStat.get("online").getAsInt() / 60;
+                JsonObject WeekOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekNumber).getAsJsonObject();
+                int WeekOnlineTime = WeekOnlineStat.get("online").getAsInt() / 60;
                 if (WeekOnlineTime >= 20) {
                     WasActiveWeekStr += "True (" + WeekOnlineTime + " >= 20 hour)";
                 } else {
@@ -216,40 +211,39 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             } else {
                 WasActiveWeekStr += "False (0 < 20 hour)";
             }
-            JsonObject Last30DaysOnlineStat;
+            int weekOfMonth = now.get(weekFields.weekOfMonth());
             String WasActiveLast30DaysStr = "";
             double Last30DaysOnlineTimeDouble = 0;
-            int Last30DaysOnlineTimeInt;
             int WasNoActiveLast30Days = 0;
             int weekcm = now.get(weekFields.weekOfWeekBasedYear())-4;
             int weekOfWeekBasedYear = now.get(weekFields.weekOfWeekBasedYear());
-            while (weekcm < weekOfWeekBasedYear) {
+            while (weekcm <= weekOfWeekBasedYear) {
                 if (WeekOnlineStatParse.toString().contains(getYear + "-" + weekcm)) {
-                    Last30DaysOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekcm).getAsJsonObject();
+                    JsonObject Last30DaysOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekcm).getAsJsonObject();
                     Last30DaysOnlineTimeDouble += (double) Last30DaysOnlineStat.get("online").getAsInt() / 60;
-                    Last30DaysOnlineTimeInt = (int) Math.round(Last30DaysOnlineTimeDouble);
+                    int Last30DaysOnlineTimeInt = (int) Math.round(Last30DaysOnlineTimeDouble);
                     if (Last30DaysOnlineTimeInt >= 100) {
                         WasActiveLast30DaysStr = "True (" + Last30DaysOnlineTimeInt + " >= 100 hour)";
                     } else {
-                        WasActiveLast30DaysStr = "False (" + Last30DaysOnlineTimeInt +" < 100 hour)";
+                        WasActiveLast30DaysStr = "False (" + Last30DaysOnlineTimeInt + " < 100 hour)";
                     }
                 } else {
                     WasNoActiveLast30Days++;
+                    if(WasNoActiveLast30Days == (weekOfMonth-1)) {
+                        WasActiveLast30DaysStr = "False (" + 0 + " < 100 hour)";
+                    }
                 }
                 weekcm++;
             }
-            JsonObject ThisMotnhOnlineStat;
             String WasActiveThisMonthStr = "";
             double ThisMonthOnlineTimeDouble = 0;
-            int ThisMonthOnlineTimeInt;
             int WasNoActiveThisMonth = 0;
-            int weekOfMonthcm = now.get(weekFields.weekOfWeekBasedYear()) - now.get(weekFields.weekOfMonth());
-
-            while (weekOfMonthcm < weekOfWeekBasedYear) {
+            int weekOfMonthcm = now.get(weekFields.weekOfWeekBasedYear()) - (now.get(weekFields.weekOfMonth())-1);
+            while (weekOfMonthcm <= weekOfWeekBasedYear) {
                 if (WeekOnlineStatParse.toString().contains(getYear + "-" + weekOfMonthcm)) {
-                    ThisMotnhOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekOfMonthcm).getAsJsonObject();
-                    ThisMonthOnlineTimeDouble += (double) ThisMotnhOnlineStat.get("online").getAsInt() / 60;
-                    ThisMonthOnlineTimeInt = (int) Math.round(ThisMonthOnlineTimeDouble);
+                    JsonObject ThisMonthOnlineStat = WeekOnlineStatParse.get(getYear + "-" + weekOfMonthcm).getAsJsonObject();
+                    ThisMonthOnlineTimeDouble += (double) ThisMonthOnlineStat.get("online").getAsInt() / 60;
+                    int ThisMonthOnlineTimeInt = (int) Math.round(ThisMonthOnlineTimeDouble);
                     if (ThisMonthOnlineTimeInt >= 100) {
                         WasActiveThisMonthStr = "True (" + ThisMonthOnlineTimeInt + " >= 100 hour)";
                     } else {
@@ -257,10 +251,12 @@ public class InteractiveProxy extends SimpleTerminalConsole {
                     }
                 } else {
                     WasNoActiveThisMonth++;
+                    if(WasNoActiveThisMonth == (weekOfMonth-1)) {
+                        WasActiveThisMonthStr = "False (" + 0 + " < 100 hour)";
+                    }
                 }
                 weekOfMonthcm++;
             }
-            int weekOfMonth = now.get(weekFields.weekOfMonth());
             logger.info("StaffTeam");
             logger.info("Username: {}", name);
             logger.info("Rank: {}", rank);
