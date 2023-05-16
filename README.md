@@ -37,41 +37,58 @@ commandTree.register(args -> {
 Generál egy új random számot a SelectedProfileIdhez, és talán kicsit könnyedén be tudsz lépni. Mindegy milyen sorrendben írod be a dolgokat, egy szűrővel megoldottam, hogy ne kelljen ezzel se foglalkoznod. Pl: login [accessToken, username, uuid], login [username, uuid, accessToken]
 
 ```java
-commandTree.register(args -> {
-    if (args.length != 3) {
-        logger.info("Usage: login [accessToken | uuid | username]");
-        return false;
-    }
-    String uuid = "";
-    String username = "";
-    String accessToken = "";
-    
-    int a = 0;
-    while(a != 3) {
-        if(args[a].contains("-") && !args[a].contains(".")) uuid = args[a];
-        if(args[a].contains(".") && !args[a].contains("-")) accessToken = args[a];
-        if(!args[a].contains("-") && !args[a].contains(".")) username = args[a];
-        a++;
-    }
-
-    proxy.name(username);
-    proxy.accessToken(accessToken);
-    proxy.uuid(uuid.replace("-", ""));
-    String prev = proxy.selectedProfileId();
-    String serverPrev = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
-    String RandSelectedPid = String.valueOf(Math.random()).substring(2);
-    proxy.selectedProfileId(RandSelectedPid);
-    
-    logger.info("--------------------");
-    logger.info("Username: {}", proxy.name());
-    logger.info("AccessToken: {}", proxy.accessToken());
-    logger.info("UUID: {}", proxy.uuid());
-    logger.info("SelectedProfileId changed to: {} -> {}", prev, proxy.selectedProfileId());
-    logger.info("ServerId changed to: {} -> {}", serverPrev, proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
-    logger.info("--------------------");
-
-    return true;
-}, "login");
+        commandTree.register(args -> {
+            String uuid = "";
+            String username = "";
+            String accessToken = "";
+            if (!proxy.sessionService().toString().contains("FyreSession")) {
+                commandTree.execute("fy");
+            }
+            if (args.length == 3) {
+                int a = 0;
+                while (a != 3) {
+                    if (args[a].contains("-") && !args[a].contains(".")) uuid = args[a];
+                    if (args[a].contains(".") && !args[a].contains("-")) accessToken = args[a];
+                    if (!args[a].contains("-") && !args[a].contains(".")) username = args[a];
+                    a++;
+                }
+            } else if (args.length == 1) {
+                try {
+                    JsonObject FmcJsonParse = (JsonObject) JsonParser.parseString(args[0]);
+                    String FmcJsonStr =  FmcJsonParse.toString();
+                    if(!FmcJsonStr.contains("accessToken") || !FmcJsonStr.contains("id") || !FmcJsonStr.contains("name")) {
+                        logger.info("accessToken, UUID or username not found");
+                        return false;
+                    }
+                    accessToken = FmcJsonParse.get("accessToken").getAsString();
+                    JsonObject SelectedProfile = FmcJsonParse.get("selectedProfile").getAsJsonObject();
+                    username = SelectedProfile.get("name").getAsString();
+                    uuid = SelectedProfile.get("id").getAsString();
+                } catch (JsonParseException e) {
+                    logger.info("Usage: login {\"accessToken\": \"access\", \"selectedProfile\":{\"name\": \"Username\"}}");
+                    return false;
+                }
+            } else {
+                logger.info("Usage: login [accessToken | uuid | username] or login [json]");
+                return false;
+            }
+            proxy.name(username);
+            proxy.accessToken(accessToken);
+            proxy.uuid(uuid.replace("-", ""));
+            String prev = proxy.selectedProfileId();
+            String serverPrev = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
+            String RandSelectedPid = String.valueOf(Math.random()).substring(2);
+            proxy.selectedProfileId(RandSelectedPid);
+            
+            logger.info("--------------------");
+            logger.info("Username: {}", proxy.name());
+            logger.info("AccessToken: {}", proxy.accessToken());
+            logger.info("UUID: {}", proxy.uuid());
+            logger.info("SelectedProfileId changed to: {} -> {}", prev, proxy.selectedProfileId());
+            logger.info("ServerId changed to: {} -> {}", serverPrev, proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
+            logger.info("--------------------");
+            return true;
+        }, "login");
 ```
 </details>
 
