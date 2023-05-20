@@ -6,7 +6,7 @@
 
 > **Warning** A módosított proxyban később kerülhetnek be olyan parancsok, amik nem segítik a gyorsabb belépést!
 
-Módosított fájl: [InteractiveProxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/standalone/src/main/java/me/marvin/proxy/InteractiveProxy.java), [Proxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/Proxy.java), [GameProfile.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/GameProfile.java), [SessionService.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/SessionService.java)
+Módosított fájl: [InteractiveProxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/standalone/src/main/java/me/marvin/proxy/InteractiveProxy.java), [Proxy.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/Proxy.java), [GameProfile.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/GameProfile.java), [SessionService.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/api/src/main/java/me/marvin/proxy/utils/SessionService.java), [ProxyBootstrap.java](https://github.com/ItzWyaxe/FyreProxy/blob/main/standalone/src/main/java/me/marvin/proxy/ProxyBootstrap.java)
 
 \- Generál egy új SPI-t, így nem fogja új account csatlakozásnál kiírni hogy "regisztrálj a fyremc.hu weboldalon"
 ```java
@@ -25,8 +25,10 @@ commandTree.register(args -> {
     commandTree.execute("fyre");
     ServerAddress prev = proxy.address();
     proxy.address("play.fyremc.hu");
-    logger.info("Changed address: '{}' -> '{}'", prev, proxy.addres());
-
+    logger.info("Changed address: '{}' -> '{}'", prev, proxy.address());
+    logger.info("Join IP: localhost:{} (Copied)", proxy.port());
+    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    clipboard.setContents(new StringSelection("localhost:"+proxy.port()), null);
     return true;
 }, "fy");
 ```
@@ -125,14 +127,13 @@ commandTree.register(args -> {
     logger.info("settoken [accessToken] --> Set accessToken to [...]");
     logger.info("setuuid [uuid] --> Set uuid to [...]");
     logger.info("setname [username] --> Set username to [...]");
-    logger.info("login [accessToken | uuid | username] --> Set accessToken, uuid, username to [...], generate new SPI, ServerId");
+    logger.info("login [accessToken | uuid | username] or [json] --> Set accessToken, uuid, username  to [...], generate new SPI, ServerId");
     logger.info("spi --> Generate new SelectedProfileId, ServerId");
     logger.info("credentials --> Current credentials");
+    logger.info("player [player] --> Information about of a player");
     logger.info("tutorial --> For more help");
     logger.info("----------------");
-
     return true;
-}, "help");
 ```
 </details>
 
@@ -148,20 +149,19 @@ commandTree.register(args -> {
     proxy.selectedProfileId(RandSelectedPid);
     logger.info("Changed SelectedProfileId: {} -> {}", prev, proxy.selectedProfileId());
     logger.info("Changed ServerId: {} -> {}", serverPrev, proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
-
     return true;
 }, "spi");
 ```
 </details>
 
 <details>
-<summary>staffteam [admin]</summary>
-Kiír néhány dolgot egy fmc adminról
+<summary>player [player]</summary>
+Kiír néhány dolgot egy fyremc játékosról
 
 ```java
 commandTree.register(args -> {
     if (args.length != 1) {
-        logger.info("Usage: staffteam [admin]");
+        logger.info("Usage: player [player]");
         return false;
     }
     URL FyremcPlayerAPI = new URL("https://account.fyremc.hu/api/player/"+ args[0]);
@@ -172,21 +172,16 @@ commandTree.register(args -> {
     while ((line = reader.readLine()) != null) {
         data.append(line);
     }
-    JsonObject StaffTeamJson = (JsonObject) JsonParser.parseString(data.toString());
-    if (StaffTeamJson.get("error").getAsBoolean()) {
-        logger.info("Admin not found");
+    JsonObject FmcPlayerJson = (JsonObject) JsonParser.parseString(data.toString());
+    if (FmcPlayerJson.get("error").getAsBoolean()) {
+        logger.info("Player not found");
         return false;
     }
-    JsonObject JsonData = StaffTeamJson.get("data").getAsJsonObject();
+    JsonObject JsonData = FmcPlayerJson.get("data").getAsJsonObject();
     String name = JsonData.get("username").getAsString();
     String rank = JsonData.get("rank").getAsString();
-    String AdminRanks = "Admin Admin+ Veteran Team Owner Moderator Builder Builder+ Jr.Moderator Moderator+";
-    if (!AdminRanks.contains(rank)) {
-        logger.info("This user is not admin");
-        return false;
-    }
-    if (StaffTeamJson.toString().contains("\"onlinestat\":[[],[]]")) {
-        logger.info("StaffTeam");
+    if (FmcPlayerJson.toString().contains("\"onlinestat\":[[],[]]")) {
+        logger.info("FyreMC player lookup");
         logger.info("Username: {}", name);
         logger.info("Rank: {}", rank);
         return true;
@@ -267,7 +262,7 @@ commandTree.register(args -> {
         }
         weekOfMonthcm++;
     }
-    logger.info("StaffTeam");
+    logger.info("FyreMC player lookup");
     logger.info("Username: {}", name);
     logger.info("Rank: {}", rank);
     logger.info("Was today online? {}", wasOnlineStr);
@@ -285,7 +280,7 @@ commandTree.register(args -> {
         }
     }
     return true;
-}, "staffteam");
+}, "player");
 ```
 </details>
 
@@ -303,6 +298,27 @@ commandTree.register(args -> {
     logger.info("Token: '{}'", proxy.accessToken());
     logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
     logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
+    logger.info("Target address: '{}'", proxy.address());
+    logger.info("Join IP: localhost:{}", proxy.port());
+    return true;
+}, "credentials");
+```
+</details>
+
+<details>
+<summary>setip [ip]</summary>
+
+```java
+commandTree.register(args -> {
+    logger.info("Current credentials:");
+    logger.info("Session Service: {}", proxy.sessionService());
+    logger.info("Name: '{}'", proxy.name());
+    logger.info("UUID: '{}'", proxy.uuid());
+    logger.info("Token: '{}'", proxy.accessToken());
+    logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
+    logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
+    logger.info("Target address: '{}'", proxy.address());
+    logger.info("Join IP: localhost:{}", proxy.port());
     return true;
 }, "credentials");
 ```
