@@ -1,8 +1,6 @@
 package me.marvin.proxy;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import io.netty.channel.epoll.Epoll;
 import me.marvin.proxy.addon.ProxyAddonHandler;
 import me.marvin.proxy.commands.impl.CommandTree;
@@ -12,6 +10,8 @@ import net.minecrell.terminalconsole.SimpleTerminalConsole;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,9 +24,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.WeekFields;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
+    
 public class InteractiveProxy extends SimpleTerminalConsole {
+
     private volatile boolean isRunning;
     private final Proxy proxy;
     private final ProxyAddonHandler addonHandler;
@@ -43,8 +47,9 @@ public class InteractiveProxy extends SimpleTerminalConsole {
         logger.info("Resolved server address: {}", proxy.address());
         commandTree = new CommandTree();
         registerBuiltinCommands();
+        registerNewCommands();
         addonHandler = new ProxyAddonHandler(proxy, commandTree);
-        logger.info("This program is modified by Wyaxe!");
+        logger.info("This program is modified by Wyaxe");
         logger.info("Use the 'help' command to list the commands");
         String RandSelectedPid = String.valueOf(Math.random()).substring(2);
         proxy.selectedProfileId(RandSelectedPid);
@@ -52,14 +57,20 @@ public class InteractiveProxy extends SimpleTerminalConsole {
 
     private void registerBuiltinCommands() {
         commandTree.register(args -> {
-            if (args.length != 1) {
+            if (args.length > 1) {
                 logger.info("Usage: setip [ip]");
                 return false;
+            } else if (args.length < 1) {
+                logger.info("Target address: {}", proxy.address());
+                logger.info("Join IP: localhost:{}", proxy.port());
+                return true;
             }
-
             ServerAddress prev = proxy.address();
             proxy.address(args[0]);
             logger.info("Changed address: '{}' -> '{}'", prev, proxy.address());
+            logger.info("Join IP: localhost:{} (Copied) ", proxy.port());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection("localhost:"+proxy.port()), null);
             return true;
         }, "setip", "ip");
 
@@ -73,12 +84,56 @@ public class InteractiveProxy extends SimpleTerminalConsole {
                 logger.info("Usage: setname [name]");
                 return false;
             }
-
             proxy.name(args[0]);
             logger.info("Set name to: '{}'", proxy.name());
             return true;
         }, "setname");
 
+        commandTree.register(args -> {
+            if (args.length != 1) {
+                logger.info("Usage: setuuid [uuid]");
+                return false;
+            }
+            proxy.uuid(args[0].replace("-", ""));
+            logger.info("Set uuid to: '{}'", proxy.uuid());
+            return true;
+        }, "setuuid");
+
+        commandTree.register(args -> {
+            if (args.length != 1) {
+                logger.info("Usage: settoken [access token]");
+                return false;
+            }
+            proxy.accessToken(args[0]);
+            logger.info("Set access token to: '{}'", proxy.accessToken());
+            return true;
+        }, "settoken");
+
+        commandTree.register(args -> {
+            logger.info("Current credentials:");
+            logger.info("Session Service: {}", proxy.sessionService());
+            logger.info("Name: '{}'", proxy.name());
+            logger.info("UUID: '{}'", proxy.uuid());
+            logger.info("Token: '{}'", proxy.accessToken());
+            logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
+            logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
+            logger.info("Target address: '{}'", proxy.address());
+            logger.info("Join IP: localhost:{}", proxy.port());
+            return true;
+        }, "credentials");
+
+        commandTree.register(args -> {
+            StringBuilder threadDump = new StringBuilder(System.lineSeparator());
+            ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+            for (ThreadInfo threadInfo : threadMXBean.dumpAllThreads(true, true)) {
+                threadDump.append(threadInfo.toString());
+            }
+            logger.info(threadDump.toString());
+            return true;
+        }, "threaddump");
+    }
+
+    public void registerNewCommands() {
         commandTree.register(args -> {
             String prev = proxy.selectedProfileId();
             String serverPrev = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
@@ -86,7 +141,6 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             proxy.selectedProfileId(RandSelectedPid);
             logger.info("Changed SelectedProfileId: {} -> {}", prev, proxy.selectedProfileId());
             logger.info("Changed ServerId: {} -> {}", serverPrev, proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
-
             return true;
         }, "spi");
 
@@ -132,7 +186,7 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             String serverPrev = proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2);
             String RandSelectedPid = String.valueOf(Math.random()).substring(2);
             proxy.selectedProfileId(RandSelectedPid);
-            
+
             logger.info("--------------------");
             logger.info("Username: {}", proxy.name());
             logger.info("AccessToken: {}", proxy.accessToken());
@@ -148,7 +202,9 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             ServerAddress prev = proxy.address();
             proxy.address("play.fyremc.hu");
             logger.info("Changed address: '{}' -> '{}'", prev, proxy.address());
-
+            logger.info("Join IP: localhost:{} (Copied)", proxy.port());
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection("localhost:"+proxy.port()), null);
             return true;
         }, "fy");
 
@@ -165,10 +221,27 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             }
             return true;
         }, "tutorial");
-        
+
+        commandTree.register(args -> {
+            logger.info("----------------");
+            logger.info("fy --> Session service, set server address to play.fyremc.hu");
+            logger.info("fyre --> Session service");
+            logger.info("setip [play.fyremc.hu] --> Set server address to [...]");
+            logger.info("settoken [accessToken] --> Set accessToken to [...]");
+            logger.info("setuuid [uuid] --> Set uuid to [...]");
+            logger.info("setname [username] --> Set username to [...]");
+            logger.info("login [accessToken | uuid | username] or [json] --> Set accessToken, uuid, username  to [...], generate new SPI, ServerId");
+            logger.info("spi --> Generate new SelectedProfileId, ServerId");
+            logger.info("credentials --> Current credentials");
+            logger.info("player [player] --> Information about of a player");
+            logger.info("tutorial --> For more help");
+            logger.info("----------------");
+            return true;
+        }, "help");
+
         commandTree.register(args -> {
             if (args.length != 1) {
-                logger.info("Usage: staffteam [admin]");
+                logger.info("Usage: player [player]");
                 return false;
             }
             URL FyremcPlayerAPI = new URL("https://account.fyremc.hu/api/player/"+ args[0]);
@@ -179,21 +252,17 @@ public class InteractiveProxy extends SimpleTerminalConsole {
             while ((line = reader.readLine()) != null) {
                 data.append(line);
             }
-            JsonObject StaffTeamJson = (JsonObject) JsonParser.parseString(data.toString());
-            if (StaffTeamJson.get("error").getAsBoolean()) {
-                logger.info("Admin not found");
+            JsonObject FmcPlayerJson = (JsonObject) JsonParser.parseString(data.toString());
+            if (FmcPlayerJson.get("error").getAsBoolean()) {
+                logger.info("Player not found");
                 return false;
             }
-            JsonObject JsonData = StaffTeamJson.get("data").getAsJsonObject();
+            JsonObject JsonData = FmcPlayerJson.get("data").getAsJsonObject();
             String name = JsonData.get("username").getAsString();
             String rank = JsonData.get("rank").getAsString();
-            String AdminRanks = "Admin Admin+ Veteran Team Owner Moderator Builder Builder+ Jr.Moderator Moderator+";
-            if (!AdminRanks.contains(rank)) {
-                logger.info("This user is not admin");
-                return false;
-            }
-            if (StaffTeamJson.toString().contains("\"onlinestat\":[[],[]]")) {
-                logger.info("StaffTeam");
+
+            if (FmcPlayerJson.toString().contains("\"onlinestat\":[[],[]]")) {
+                logger.info("FyreMC player lookup");
                 logger.info("Username: {}", name);
                 logger.info("Rank: {}", rank);
                 return true;
@@ -274,7 +343,7 @@ public class InteractiveProxy extends SimpleTerminalConsole {
                 }
                 weekOfMonthcm++;
             }
-            logger.info("StaffTeam");
+            logger.info("FyreMC player lookup");
             logger.info("Username: {}", name);
             logger.info("Rank: {}", rank);
             logger.info("Was today online? {}", wasOnlineStr);
@@ -292,67 +361,7 @@ public class InteractiveProxy extends SimpleTerminalConsole {
                 }
             }
             return true;
-        }, "staffteam");
-
-        commandTree.register(args -> {
-            if (args.length != 1) {
-                logger.info("Usage: setuuid [uuid]");
-                return false;
-            }
-
-            proxy.uuid(args[0].replace("-", ""));
-            logger.info("Set uuid to: '{}'", proxy.uuid());
-            return true;
-        }, "setuuid");
-
-        commandTree.register(args -> {
-            if (args.length != 1) {
-                logger.info("Usage: settoken [access token]");
-                return false;
-            }
-
-            proxy.accessToken(args[0]);
-            logger.info("Set access token to: '{}'", proxy.accessToken());
-            return true;
-        }, "settoken");
-
-        commandTree.register(args -> {
-            logger.info("Current credentials:");
-            logger.info("Session Service: {}", proxy.sessionService());
-            logger.info("Name: '{}'", proxy.name());
-            logger.info("UUID: '{}'", proxy.uuid());
-            logger.info("Token: '{}'", proxy.accessToken());
-            logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
-            logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
-            return true;
-        }, "credentials");
-
-        commandTree.register(args -> {
-            logger.info("----------------");
-            logger.info("fy --> Session service, set server address to play.fyremc.hu");
-            logger.info("fyre --> Session service");
-            logger.info("setip [play.fyremc.hu] --> Set server address to [...]");
-            logger.info("settoken [accessToken] --> Set accessToken to [...]");
-            logger.info("setuuid [uuid] --> Set uuid to [...]");
-            logger.info("setname [username] --> Set username to [...]");
-            logger.info("login [accessToken | uuid | username] --> Set accessToken, uuid, username to [...], generate new SPI, ServerId");
-            logger.info("spi --> Generate new SelectedProfileId, ServerId");
-            logger.info("credentials --> Current credentials");
-            logger.info("tutorial --> For more help");
-            logger.info("----------------");
-
-            return true;
-        }, "help");
-
-        commandTree.register(args -> {
-            StringBuilder threadDump = new StringBuilder(System.lineSeparator());
-            ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-            for (ThreadInfo threadInfo : threadMXBean.dumpAllThreads(true, true)) {
-                threadDump.append(threadInfo.toString());
-            }
-            logger.info(threadDump.toString());
-            return true;
-        }, "threaddump");
+        }, "player");
     }
 
     @Override
@@ -376,7 +385,6 @@ public class InteractiveProxy extends SimpleTerminalConsole {
                 lock.countDown();
             }
         }).start();
-
         try {
             lock.await();
             if (isRunning()) {
