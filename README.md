@@ -311,17 +311,22 @@ commandTree.register(args -> {
 
 ```java
 commandTree.register(args -> {
-    logger.info("Current credentials:");
-    logger.info("Session Service: {}", proxy.sessionService());
-    logger.info("Name: '{}'", proxy.name());
-    logger.info("UUID: '{}'", proxy.uuid());
-    logger.info("Token: '{}'", proxy.accessToken());
-    logger.info("SelectedProfileId: '{}'", proxy.selectedProfileId());
-    logger.info("ServerId: '{}'", proxy.selectedProfileId().substring(proxy.selectedProfileId().length()-2));
-    logger.info("Target address: '{}'", proxy.address());
-    logger.info("Join IP: localhost:{}", proxy.port());
+    if (args.length > 1) {
+        logger.info("Usage: setip [ip]");
+        return false;
+    } else if (args.length < 1) {
+        logger.info("Target address: {}", proxy.address());
+        logger.info("Join IP: localhost:{}", proxy.port());
+        return true;
+    }
+    ServerAddress prev = proxy.address();
+    proxy.address(args[0]);
+    logger.info("Changed address: '{}' -> '{}'", prev, proxy.address());
+    logger.info("Join IP: localhost:{} (Copied) ", proxy.port());
+    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    clipboard.setContents(new StringSelection("localhost:"+proxy.port()), null);
     return true;
-}, "credentials");
+}, "setip", "ip");
 ```
 </details>
 
